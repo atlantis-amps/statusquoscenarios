@@ -1,0 +1,286 @@
+---
+title: "Analyzing Atlantis Status Quo Scenarios"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyzing Atlantis Status Quo Scenarios with statusquoscenarios}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE   # set to TRUE only when NetCDF data are available
+)
+devtools::load_all()
+Sys.setlocale("LC_CTYPE", "en_US.UTF-8")# https://www.r-bloggers.com/web-scraping-and-invalid-multibyte-string/
+
+#devtools::install_github("ricardo-bion/ggradar", 
+#                         dependencies = TRUE)
+#https://github.com/ricardo-bion/ggradar
+
+#https://github.com/palaeoverse-community/rphylopic
+
+```
+
+Get polygons by basin
+```{r basin_polygons, echo=FALSE}
+
+#read basin polygon
+
+basin.dir <- "repsbasin_shapefile"
+atlantis.dir <- "Atlantis_shapefile"
+output.dir <- "output"
+
+atlantis.table <- get_basin(basin.dir, atlantis.dir, output.dir)
+
+readr::write_csv(atlantis.table, here::here("output","polygon_table.csv"))
+
+#watershed.pols <- combine_basin_shapefiles()
+
+
+```
+
+Only run to extract data again
+```{r spatial_biomass, eval=FALSE, include=FALSE}
+# get spatial biomass from NC out files for all scenarios
+
+
+bboxes <- NULL #want to consider all polygons, atlantistool shows an example that uses get_boundary to identify boundary polygons and exclude them, but the function behaves inforrectly and marks as boundary polygons ones that are not.
+
+prm_biol <-here::here("data", "AMPSbioparam_mv1_2024_V10.prm")
+
+func.groups <- readr:::read_csv(here::here("data","PugetSoundAtlantisFunctionalGroups_2024_V1_SQ.csv"))
+
+fgs <- here::here("data","PugetSoundAtlantisFunctionalGroups_2024_V1_SQ_LM.csv")
+init <- here::here("data","AMPS_2024.nc")
+bps <- atlantistools::load_bps(fgs = fgs, init = init)
+
+nc_file <- "AMPS_OUT.nc"
+run_file <- "PugetSound_run.prm"
+
+run.scenarios <- c("/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2020", "/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2030", "/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2040")
+
+spatial.biomass <- lapply(run.scenarios, get_nc_biomass, boxes, prm_biol, func.groups, fgs, init, bps, nc_file, run_file)
+
+spatial.biomass %>% 
+  dplyr::bind_rows() %>% data.table::fwrite(here::here("output","spatial_biomass.csv"), verbose = TRUE)
+
+```
+
+
+```{r biomass_plots, echo=FALSE}
+group.guilds  <- readr::read_csv(here::here("data","group_guilds.csv")) %>% 
+   dplyr::rename(longname = long_name)
+
+fgs <- readr::read_csv(here::here("data","PugetSoundAtlantisFunctionalGroups_2024_V1_SQ_LM.csv")) %>% 
+  dplyr::rename(code=Code) %>% 
+  dplyr::select(code, Name, LongName, Large_group_alt3)
+
+
+polygon.table <- readr::read_csv(here::here("output","polygon_table.csv")) %>% 
+  dplyr::rename(box = "Box")
+
+biomass.res <- data.table::fread(here::here("output","spatial_biomass.csv"), verbose = TRUE)
+
+#t.step <- ((45*365)/73):((49*365)/73)
+
+ndyn.pols <- 61:89 #non-dynamic polygon 
+
+max.time <- 49
+min.time <- 45
+
+target.sc <- 2040
+base.sc <- 2020
+
+biomass_plots(biomass.res, polygon.table, ndyn.pols, max.time, min.time, fgs, target.sc, base.sc)
+```
+
+
+```{r heatmaps, echo=TRUE}
+
+output.dir <- here::here("output")
+
+basins <- readr::read_csv(here::here("output","polygon_table.csv")) %>% 
+  dplyr::distinct(basin) %>% 
+  dplyr::pull(basin)
+
+basin.data <- readr::read_csv(here::here("output","basin_guild_biomass.csv"))
+
+#get heatmap by decade and basin
+
+lapply(basins, plot_biomass_heatmap, basin.data, output.dir)
+
+
+
+```
+
+```{r plot_spatial, include=FALSE}
+
+basin.data <- readr::read_csv(here::here("output","basin_guild_biomass.csv"))
+output.dir <- here::here("output")
+
+
+plot_guild_spatial(basin.data, atlantis.dir = "Atlantis_shapefile", this.guild="Salmon", output.dir, this.sc = 2040) 
+
+salmon.genera <- readr::read_csv(here::here("data","salmon_genera.csv"))
+basin.data <- readr::read_csv(here::here("output","basin_species_biomass.csv"))
+
+plot_group_spatial(basin.data, atlantis.dir = "Atlantis_shapefile", this.group=NULL, this.guild=NULL, salmon.genera, output.dir, this.name="Salmon", this.sc = 2040)
+
+
+```
+
+
+Get nums and weight-at-age
+```{r radar_plot, eval=FALSE, include=FALSE}
+# Specify run directories
+folder.paths <- c("/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2020/outputFolder",
+"/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2030/outputFolder",
+"/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2040/outputFolder")
+data.path <- "data"
+
+polygon.table <- readr::read_csv(here::here("output","polygon_table.csv")) %>% 
+  dplyr::rename(box = "Box")
+
+max.time <- 49
+min.time <- 45
+outputfrequency <- 73 #output frequency in days
+functionalgroup.file <- "PugetSoundAtlantisFunctionalGroups_2024_V1_SQ.csv" #should be saved in same directory as this code
+this.output.nc <- "AMPS_OUT.nc" #name of output nc file
+
+#get weights at age and numbers
+
+lapply(folder.paths, get_wage_nums, max.time, min.time, outputfrequency, functionalgroup.file, this.output.nc, polygon.table)
+
+
+
+
+```
+
+
+Format data for radar plots 2020 and 2040
+```{r radar_plot, include=FALSE}
+#2011 run "/nfsdata/newMar2026_2011SQrun/outputFolder"
+#Using 2020 run as base rub
+
+#read basin polygon
+
+output.dir <- "output"
+
+scenario.names <- c("2020", "2040")
+
+startyear <- 2011 #model start year
+outputfrequency <- 73 #output frequency in days
+functionalgroup.file <- here::here("data","PugetSoundAtlantisFunctionalGroups_2024_V1_SQ.csv") #should be saved in same directory as this code
+this.output.nc <- "AMPS_OUT.nc" #name of output nc file
+polygon.table <- readr::read_csv(here::here("output","polygon_table.csv")) %>% 
+  dplyr::rename(box = "Box")
+folder.base <- c("/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_")
+max.time <- 49
+min.time <- 45
+file.name <- "_Nums_ResN_W.csv"
+biomass.path <- here::here("output","spatial_biomass.csv")
+
+
+radar.data <- lapply(scenario.names, get_radar_data, file.name, startyear, runtime, outputfrequency, functionalgroup.file, this.output.nc, atlantis.table, folder.base, biomass.paths)
+
+
+vital.signs.data <- radar.data %>% 
+  dplyr::bind_rows()
+
+plot_radar(vital.signs.data, scenarios = "2020-2040")
+
+#plot aggregated across all of Puget Sound
+plot_radar_ps(vital.signs.data, scenarios = "2020-2040")
+
+```
+
+Format data for radar plots 2020, 2030 and 2040
+```{r radar_plot, include=FALSE}
+#2011 run "/nfsdata/newMar2026_2011SQrun/outputFolder"
+#Using 2020 run as base rub
+
+#read basin polygon
+
+output.dir <- "output"
+
+scenario.names <- c("2020", "2030","2040")
+
+startyear <- 2011 #model start year
+outputfrequency <- 73 #output frequency in days
+functionalgroup.file <- here::here("data","PugetSoundAtlantisFunctionalGroups_2024_V1_SQ.csv") #should be saved in same directory as this code
+this.output.nc <- "AMPS_OUT.nc" #name of output nc file
+polygon.table <- readr::read_csv(here::here("output","polygon_table.csv")) %>% 
+  dplyr::rename(box = "Box")
+folder.base <- c("/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_")
+max.time <- 49
+min.time <- 45
+file.name <- "_Nums_ResN_W.csv"
+biomass.path <- here::here("output","spatial_biomass.csv")
+
+
+radar.data <- lapply(scenario.names, get_radar_data, file.name, startyear, runtime, outputfrequency, functionalgroup.file, this.output.nc, atlantis.table, folder.base, biomass.paths)
+
+
+vital.signs.data <- radar.data %>% 
+  dplyr::bind_rows()
+
+plot_radar(vital.signs.data, scenarios = "2020-2030-2040")
+
+#plot aggregated across all of Puget Sound
+plot_radar_ps(vital.signs.data, scenarios = "2020-2030-2040")
+
+```
+
+```{r plot_w_age, include=FALSE}
+
+#read w age files
+
+wage.files <- list.files(path=(here::here("output")), pattern="*ResN_W.csv", full.names = TRUE)
+max.time <- 49
+min.time <- 45
+time.step <- 73 #frequency of outputs
+
+plot_wage_nums(wage.files, min.time, max.time, time.step)
+
+
+```
+
+
+
+```{r analyze_diets, eval=FALSE, include=FALSE}
+
+# Specify run directories
+folder.paths <- c("/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2020/outputFolder",
+"/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2030/outputFolder",
+"/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2040/outputFolder")
+
+scenario.names <- c("Base scenario", "2030","2040")
+functionalgroup.file <- "PugetSoundAtlantisFunctionalGroups_2024_V1_SQ.csv" #should be saved in same directory as this code
+
+compare_diet(folder.paths,
+                          scenario.names,
+                          functionalgroup.file,
+                          diet.file    = "AMPS_OUTDietCheck.txt",
+                          predators.to.plot = NULL,
+                          threshold    = 0.01,
+                          startyear    = 2011,
+                          timeperiod   = 73,
+                          avg.years    = 5,
+                          output.dir   = "output")
+
+```
+
+
+```{r plot_catch, include=FALSE}
+folder.paths <- c("/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2020/outputFolder",
+"/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2030/outputFolder",
+"/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2040/outputFolder")
+
+scenario.names <- c("Base scenario", "2030","2040")
+
+  p <- plot_catch_per_fishery_scenarios(folder.paths, scenario.names)
+  print(p)
+```
