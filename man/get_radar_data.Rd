@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_radar_data.R
 \name{get_radar_data}
 \alias{get_radar_data}
-\title{Code to create a radar plot for Vital Sign Indicators}
+\title{Extract Vital Signs Indicators Data for Radar Plots}
 \usage{
 get_radar_data(
   this.scenario,
@@ -17,9 +17,61 @@ get_radar_data(
   biomass.paths
 )
 }
+\arguments{
+\item{this.scenario}{Character. The name of the scenario to process.}
+
+\item{file.name}{Character. The filename suffix for abundance/nums output files.}
+
+\item{startyear}{Numeric. Starting year for the simulation.}
+
+\item{runtime}{Numeric. Total runtime of the simulation in years.}
+
+\item{outputfrequency}{Numeric. Output frequency (timestep) in days.}
+
+\item{functionalgroup.file}{Character. Path to the functional groups CSV file.}
+
+\item{this.output.nc}{Character. (Currently unused) Path to NetCDF output file.}
+
+\item{atlantis.table}{(Currently unused) Atlantis model table.}
+
+\item{folder.base}{Character. Base folder path containing scenario output folders.}
+
+\item{biomass.paths}{Character. Path to the biomass data file.}
+}
+\value{
+A data frame with columns:
+\itemize{
+\item \code{indicator_short}: Short name of the indicator
+\item \code{basin}: Geographic basin
+\item \code{value}: Aggregated indicator value
+\item \code{scenario}: Scenario name
+\item \code{parameter}: Either "abundance" or "biomass"
+}
+}
 \description{
-https://vitalsigns.pugetsoundinfo.wa.gov/
+Retrieves and processes vital signs indicators (biomass and abundance) from
+Atlantis model output files and Google Sheets specifications.
+}
+\details{
+This function fetches vital signs indicator definitions from a Google Sheet
+(https://vitalsigns.pugetsoundinfo.wa.gov/) and combines them with abundance
+and biomass data from Atlantis model output files. Results are aggregated by
+indicator and basin.
+}
+\examples{
+\dontrun{
+  vital_signs <- get_radar_data(
+    this.scenario = "scenario_2020",
+    file.name = "_Nums.csv",
+    startyear = 2020,
+    runtime = 20,
+    outputfrequency = 5,
+    functionalgroup.file = "data/functionalgroups.csv",
+    folder.base = "output/",
+    biomass.paths = "output/biomass_data.csv"
+  )
+}
 }
 \author{
-Hem Nalini Morzaria Luna
+Hem Nalini Morzaria-Luna
 }

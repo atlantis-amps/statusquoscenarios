@@ -2,41 +2,52 @@
 % Please edit documentation in R/plot_biomass_heatmap.R
 \name{plot_biomass_heatmap}
 \alias{plot_biomass_heatmap}
-\title{Plot biomass change heatmaps by functional group}
+\title{Plot Biomass Change Heatmaps by Basin and Guild}
 \usage{
 plot_biomass_heatmap(this.basin, basin.data, output.dir, target.sc)
 }
 \arguments{
-\item{biom_file}{Character. Path to the biomass CSV file
-(\code{biom_comp_run_status_quo.csv}). Defaults to the bundled copy.}
+\item{this.basin}{Character. The basin name to filter and plot.}
 
-\item{fg_file}{Character. Path to the functional groups CSV. Defaults to
-the bundled copy.}
+\item{basin.data}{Data frame. Biomass data with columns:
+\itemize{
+\item \code{basin}: Basin identifier
+\item \code{scenario}: Scenario identifier
+\item \code{guild}: Functional group guild
+\item \code{rel_biomass}: Relative biomass change (\%)
+}}
 
-\item{baseline_year}{Character. \code{run_name} value for the baseline scenario.
-Default \code{"Yr2011"}.}
+\item{output.dir}{Character. Output directory for saving plots.}
 
-\item{yr_min}{Integer. Minimum \code{Year} value to include (exclusive).
-Default \code{40L}.}
-
-\item{output_dir}{Character. Output directory. Created if absent.
-Default \code{"output"}.}
-
-\item{output_file}{Character. PDF filename. Default \code{"Heatmap_biomass.pdf"}.}
+\item{target.sc}{Numeric. Target scenario year (e.g., 2040, 2090) for filtering
+and output naming.}
 }
 \value{
-Invisibly returns the path to the saved PDF.
+Invisibly returns NULL. Saves JPEG files to output directory.
 }
 \description{
-Creates a PDF with two sections:
-\enumerate{
-\item A summary heatmap faceted by \code{Large_group_alt3} / \code{Subgroup}.
-\item Four detail heatmaps (LTL, Benthos, Fish, HTL) arranged in a 2 × 3
-grid via \code{\link[cowplot:plot_grid]{cowplot::plot_grid()}}.
+Creates heatmaps showing relative biomass change across scenarios by guild
+for a specific basin and target scenario year.
 }
+\details{
+This function creates two heatmaps:
+\itemize{
+\item One filtered to exclude certain guilds (Shrimp & squid for 2040;
+Shrimp & squid and Forage fish for 2090)
+\item One showing all guilds
+}
+
+Both plots use a diverging RdBu color palette centered at zero, with
+publication-ready formatting. Plots are saved as JPEG files with 300 DPI.
 }
 \examples{
 \dontrun{
-plot_biomass_heatmap(output_dir = "output")
+  biomass <- read.csv("biomass_data.csv")
+  plot_biomass_heatmap(
+    this.basin = "Central Puget Sound",
+    basin.data = biomass,
+    output.dir = "output",
+    target.sc = 2040
+  )
 }
 }

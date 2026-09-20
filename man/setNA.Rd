@@ -2,13 +2,38 @@
 % Please edit documentation in R/setNA.R
 \name{setNA}
 \alias{setNA}
-\title{Set values to NA}
+\title{Set Matrix Values to NA Based on Polygon Range}
 \usage{
 setNA(mat, ini.pol, end.pol)
 }
 \arguments{
-\item{mat}{}
+\item{mat}{Numeric matrix or 3D array. The data to mask.}
+
+\item{ini.pol}{Numeric. Starting polygon (column/row) index.}
+
+\item{end.pol}{Numeric. Ending polygon (column/row) index.}
+}
+\value{
+A matrix or array of the same dimensions as \code{mat} with specified
+indices set to NA.
 }
 \description{
-Set values to NA
+Sets specified polygons (rows/columns) to NA in a matrix, useful for masking
+land areas or excluded regions in spatial Atlantis output.
+}
+\details{
+This function handles both 2D matrices and 3D arrays:
+\itemize{
+\item For 3D arrays: sets \code{mat[, c(1, ini.pol:end.pol), ]} to NA
+\item For 2D matrices: sets \code{mat[c(1, ini.pol:end.pol), ]} to NA
+}
+This is typically used to mask coastal polygons or other excluded areas from
+Atlantis output before analysis or visualization.
+}
+\examples{
+\dontrun{
+  # Mask polygons 5 through 10 in a 3D array
+  masked_array <- setNA(data_array, ini.pol = 5, end.pol = 10)
+}
+
 }
