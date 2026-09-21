@@ -74,7 +74,8 @@ plot_radar_ps <- function(vital.signs.data, scenarios){
     
     # Color for basins
     # See for colors
-    lcols <- wesanderson::wes_palette(n=length(unique(radar.data$scenario)), name = "Darjeeling1", type = "continuous")
+    lcols_full <- psimfcolors::psimf_palette("decades")
+    lcols <- lcols_full[names(lcols_full) %in% unique(radar.data$scenario)]
     
     sysfonts::font_add_google("Roboto", "roboto")
     

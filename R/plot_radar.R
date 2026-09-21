@@ -72,20 +72,22 @@ plot_radar <- function(vital.signs.data, scenarios){
   
   #extrafont::font_import(pattern = 'Circular', prompt = FALSE)
   
+  # Get named color vector for scenarios
+  lcols_full <- psimfcolors::psimf_palette("decades")
+
   for(eachbasin in 1:length(unique.basins)){
-    
+
     this_basin <- unique.basins[eachbasin]
-    
-   
+
+
     print(this_basin)
-  
+
     radar.data <- radar.plot.data %>%
       dplyr::filter(basin == this_basin) %>%
-      dplyr::ungroup() 
-    
-    # Color for basins
-    # See for colors
-    lcols <- psimfcolors::psimf_palette("decades", n = length(unique(radar.data$scenario)))
+      dplyr::ungroup()
+
+    # Color for basins - subset named colors to only scenarios in this basin
+    lcols <- lcols_full[names(lcols_full) %in% unique(radar.data$scenario)]
     
     sysfonts::font_add_google("Roboto", "roboto")
     

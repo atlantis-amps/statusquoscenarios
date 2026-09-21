@@ -24,8 +24,8 @@ Sys.setlocale("LC_CTYPE", "en_US.UTF-8")# https://www.r-bloggers.com/web-scrapin
 
 ```
 
-Get polygons by basin
-```{r basin_polygons, echo=FALSE}
+Get polygons by basin, need to only run once
+```{r basin_polygons, eval=FALSE, include=FALSE}
 
 #read basin polygon
 
@@ -133,8 +133,8 @@ plot_group_spatial(basin.data, atlantis.dir = "Atlantis_shapefile", this.group=N
 ```
 
 
-Get nums and weight-at-age
-```{r radar_plot, eval=FALSE, include=FALSE}
+Get nums and weight-at-age only run once
+```{r getW_age, eval=FALSE, include=FALSE}
 # Specify run directories
 folder.paths <- c("/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2020/outputFolder",
 "/nfsdata/status_quo_atlantis_runs/Atlantis_base_2025_2030/outputFolder",
@@ -161,7 +161,7 @@ lapply(folder.paths, get_wage_nums, max.time, min.time, outputfrequency, functio
 
 
 Format data for radar plots 2020 and 2040
-```{r radar_plot, include=FALSE}
+```{r format_radar_plot, include=FALSE}
 #2011 run "/nfsdata/newMar2026_2011SQrun/outputFolder"
 #Using 2020 run as base rub
 
@@ -186,16 +186,12 @@ biomass.path <- here::here("output","spatial_biomass.csv")
 
 radar.data <- lapply(scenario.names, get_radar_data, file.name, startyear, runtime, outputfrequency, functionalgroup.file, this.output.nc, atlantis.table, folder.base, biomass.paths)
 
-
-vital.signs.data <- radar.data %>% 
-  dplyr::bind_rows()
-
-plot_radar(vital.signs.data, scenarios = "2020-2040")
-
-#plot aggregated across all of Puget Sound
-plot_radar_ps(vital.signs.data, scenarios = "2020-2040")
-
+radar.data %>% 
+  dplyr::bind_rows() %>% 
+  readr::write_csv(here::here("output","radar_data_2020_40.csv"))
 ```
+
+
 
 Format data for radar plots 2020, 2030 and 2040
 ```{r radar_plot, include=FALSE}
@@ -223,14 +219,31 @@ biomass.path <- here::here("output","spatial_biomass.csv")
 
 radar.data <- lapply(scenario.names, get_radar_data, file.name, startyear, runtime, outputfrequency, functionalgroup.file, this.output.nc, atlantis.table, folder.base, biomass.paths)
 
+radar.data %>% 
+  dplyr::bind_rows() %>% 
+  readr::write_csv(here::here("output","radar_data_2020_30_40.csv"))
 
-vital.signs.data <- radar.data %>% 
-  dplyr::bind_rows()
+
+```
+
+Plot radar plot comparison
+```{r}
+vital.signs.data <- readr::read_csv(here::here("output","radar_data_2020_40.csv"))
+  
+
+plot_radar(vital.signs.data, scenarios = "2020-2040")
+
+#plot aggregated across all of Puget Sound
+plot_radar_ps(vital.signs.data, scenarios = "2020-2040")
+
+vital.signs.data <- readr::read_csv(here::here("output","radar_data_2020_30_40.csv"))
+  
 
 plot_radar(vital.signs.data, scenarios = "2020-2030-2040")
 
 #plot aggregated across all of Puget Sound
 plot_radar_ps(vital.signs.data, scenarios = "2020-2030-2040")
+
 
 ```
 

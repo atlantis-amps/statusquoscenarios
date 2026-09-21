@@ -34,7 +34,7 @@ Imports:
     ggforce,
     geometry
 Remotes:
-    atlantis-amp/atlantisplotter
+    atlantis-amps/atlantisplotter,
     atlantis-amps/psimfcolors
 Suggests:
     knitr,

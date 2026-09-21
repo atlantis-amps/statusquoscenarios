@@ -61,7 +61,10 @@ plot_wage_nums <- function(wage.files, min.time, max.time, time.step){
   }
   
   wage.sc.data <- wage.nums.data %>% dplyr::bind_rows()
-  
+
+  # Get named color vector for scenarios
+  lcols_full <- psimfcolors::psimf_palette("decades")
+
   mean.weight <- wage.sc.data %>%
     dplyr::filter(variable_type=="Wage") %>%
     dplyr::summarise(mean_w_kg = mean(value), .by=c("group","longname","age","scenario")) %>%
@@ -73,7 +76,7 @@ plot_wage_nums <- function(wage.files, min.time, max.time, time.step){
     # Without transparency (left)
     ggplot2::ggplot(aes(x=age, y=mean_w_kg, group=scenario, color=scenario)) +
     ggplot2::geom_line(linewidth = 1) +
-    ggplot2::scale_color_manual(values = psimfcolors::psimf_palette("decades", n = length(unique(mean.weight$scenario)))) +
+    ggplot2::scale_color_manual(values = lcols_full[names(lcols_full) %in% unique(mean.weight$scenario)]) +
     ggplot2::labs(x= "Age", y = "Mean weight-at-age (kg)", color = "Scenario") +
     ggplot2::theme_classic() +
     ggplot2::theme(
@@ -127,7 +130,7 @@ nums.plot.base <- mean.nums %>%
   ggplot2::ggplot(aes(x=age, y=mean_nums, group=scenario, color=scenario)) +
 #  ggplot2::geom_bar(stat="identity") +
   ggplot2::geom_line(linewidth = 1) +
-  ggplot2::scale_color_manual(values = psimfcolors::psimf_palette("decades", n = length(unique(mean.nums$scenario)))) +
+  ggplot2::scale_color_manual(values = lcols_full[names(lcols_full) %in% unique(mean.nums$scenario)]) +
   ggplot2::labs(x= "Age", y = "Mean abundance", color = "Scenario") +
   ggplot2::theme_classic() +
   ggplot2::theme(
