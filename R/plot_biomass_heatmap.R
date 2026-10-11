@@ -76,15 +76,7 @@ plot_biomass_heatmap <- function(this.basin, basin.data, output.dir, target.sc) 
      
    # ggplot2::scale_fill_viridis_c(name = "Mean relative\nchange (%)", na.value = "lightgray", option="G", direction=-1) +
     #  ggplot2::scale_fill_gradient2(low = "darkblue", mid = "white", high = "lightblue", midpoint = 0) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 30, hjust = 1, size = 12),
-      axis.text.y = ggplot2::element_text(size = 12),
-      axis.title.x = ggplot2::element_text(size = 12, face = "bold"),
-      axis.title.y = ggplot2::element_text(size = 12, face = "bold"),
-      panel.grid  = ggplot2::element_blank(),
-      panel.background = ggplot2::element_rect(fill = "white")
-    ) +
+    psimfcolors::theme_psimf() +
     ggplot2::labs(x = "Decade", y = "Guild", title = this.basin, fill = "Mean relative\nchange (%)")
 
 ggplot2::ggsave(paste0(this.basin,"_heatmap_biomass_",target.sc,".jpg"),  heatmap.plot, path = here::here(output.dir), dpi=300, width=8, height=9)   
@@ -101,15 +93,7 @@ heatmap.plot.all <- ggplot2::ggplot(
   ggplot2::scale_fill_distiller(palette = "RdBu", limits = c(-max_val, max_val)) + 
   #ggplot2::scale_fill_viridis_c(name = "Mean relative\nchange (%)", na.value = "lightgray", option="G", direction=-1) +
   #  ggplot2::scale_fill_gradient2(low = "darkblue", mid = "white", high = "lightblue", midpoint = 0) +
-  ggplot2::theme_minimal() +
-  ggplot2::theme(
-    axis.text.x = ggplot2::element_text(angle = 30, hjust = 1, size = 12),
-    axis.text.y = ggplot2::element_text(size = 12),
-    axis.title.x = ggplot2::element_text(size = 12, face = "bold"),
-    axis.title.y = ggplot2::element_text(size = 12, face = "bold"),
-    panel.grid  = ggplot2::element_blank(),
-    panel.background = ggplot2::element_rect(fill = "white")
-  ) +
+  psimfcolor::theme_psimf() +
   ggplot2::labs(x = "Decade", y = "Guild", title = this.basin, fill = "Mean relative\nchange (%)")
 
 ggplot2::ggsave(paste0(this.basin,"_heatmap_biomass_all_",target.sc,".jpg"), heatmap.plot.all, path = here::here(output.dir), dpi=300, width=8, height=9)   

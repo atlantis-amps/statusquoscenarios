@@ -120,7 +120,7 @@ biomass_plots <- function(biomass.res, polygon.table, ndyn.pols, max.time, min.t
     ggplot2::labs(x= "", y="Mean % relative biomass change") +
     ggplot2::scale_fill_manual(values = pal)+
     ggplot2::guides(fill="none") +
-    ggplot2::theme_minimal() +
+    psimfcolors::theme_psimf() +
     ggplot2::geom_hline(yintercept = 0, color = "black", linetype = "dashed", linewidth = 0.3) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     ggplot2::theme(
@@ -146,7 +146,7 @@ biomass_plots <- function(biomass.res, polygon.table, ndyn.pols, max.time, min.t
     ggplot2::labs(x= "Basin", y="Mean % relative biomass change") +
     ggplot2::scale_fill_manual(values = pal)+
     ggplot2::guides(fill="none") +
-    ggplot2::theme_minimal() +
+    psimfcolors::theme_psimf() +
     ggplot2::geom_hline(yintercept = 0, color = "black", linetype = "dashed", linewidth = 0.3) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     ggplot2::theme(
@@ -259,11 +259,11 @@ biomass_plots <- function(biomass.res, polygon.table, ndyn.pols, max.time, min.t
     ggplot2::ggplot() +
     ggplot2::geom_bar(ggplot2::aes(x=basin, y=rel_biomass, fill=guild), stat="identity") +
     ggplot2::facet_wrap(. ~ LongName) +
-     ggplot2::scale_fill_manual(values = pal)+
+    ggplot2::scale_fill_manual(values = pal)+
  #   ggplot2::guides(fill="none") +
  #   ggplot2::labs(title=paste("Functional groups with > ±",rel.change,"% mean relative change in",target.sc), x= "Basin", y="Mean relative change in biomass", fill = "Guild") +
     ggplot2::labs(x= "Basin", y="Mean relative change in biomass", fill = "Guild") +
-    ggplot2::theme_minimal() +
+    psimfcolors::theme_psimf() +
     ggplot2::geom_hline(yintercept = 0, color = "black", linetype = "dashed", linewidth = 0.3) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     ggplot2::theme(

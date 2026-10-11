@@ -110,7 +110,9 @@ basin.data <- readr::read_csv(here::here("output","basin_guild_biomass.csv"))
 
 #get heatmap by decade and basin
 
-lapply(basins, plot_biomass_heatmap, basin.data, output.dir)
+target.sc <- 2040
+
+lapply(basins, plot_biomass_heatmap, basin.data, output.dir, target.sc)
 
 
 

@@ -78,14 +78,7 @@ plot_wage_nums <- function(wage.files, min.time, max.time, time.step){
     ggplot2::geom_line(linewidth = 1) +
     ggplot2::scale_color_manual(values = lcols_full[names(lcols_full) %in% unique(mean.weight$scenario)]) +
     ggplot2::labs(x= "Age", y = "Mean weight-at-age (kg)", color = "Scenario") +
-    ggplot2::theme_classic() +
-    ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 11),
-      axis.title = ggplot2::element_text(size = 12, face = "bold"),
-      legend.text = ggplot2::element_text(size = 11),
-      legend.title = ggplot2::element_text(size = 12, face = "bold"),
-      strip.text = ggplot2::element_text(size = 10, face = "bold")
-    )
+    psimfcolors::theme_psimf() 
  #   ggplot2::theme_ipsum() +
 
   # Determine number of pages needed (ncol*nrow panels per page)
@@ -132,14 +125,8 @@ nums.plot.base <- mean.nums %>%
   ggplot2::geom_line(linewidth = 1) +
   ggplot2::scale_color_manual(values = lcols_full[names(lcols_full) %in% unique(mean.nums$scenario)]) +
   ggplot2::labs(x= "Age", y = "Mean abundance", color = "Scenario") +
-  ggplot2::theme_classic() +
-  ggplot2::theme(
-    axis.text = ggplot2::element_text(size = 11),
-    axis.title = ggplot2::element_text(size = 12, face = "bold"),
-    legend.text = ggplot2::element_text(size = 11),
-    legend.title = ggplot2::element_text(size = 12, face = "bold"),
-    strip.text = ggplot2::element_text(size = 10, face = "bold")
-  )
+  psimfcolors::theme_psimf()
+  
 #   ggplot2::theme_ipsum() +
 
 # Determine number of pages needed (ncol*nrow panels per page)
